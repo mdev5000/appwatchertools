@@ -1,3 +1,17 @@
+# appwatchertools
+
+Utility functions for setting up an application watcher.
+
+## Get started
+
+```bash
+go get bitbucket.org/mdev5000/appwatchertools
+```
+
+## Example
+
+`watcher/watcher.go`
+```go
 package main
 
 import (
@@ -68,7 +82,18 @@ func (r *runner) onChange(files []string, isInit bool) bool {
 	return true
 }
 
-// Limit what files and directories are watched:
+// Limit what files and directories are watched
+// In this case anything in:
+//	[rootdir]/main/
+//	[rootdir]/app/
 func (r *runner) isApplicationPath(dir string, path string) bool {
-	return strings.HasPrefix(path, filepath.Join(dir, "example", "watcher.go"))
+	return strings.HasPrefix(path, filepath.Join(dir, "main")) ||
+		strings.HasPrefix(path, filepath.Join(dir, "app"))
 }
+```
+
+You can then run the watcher with:
+
+```bash
+go run watcher/watcher.go
+```

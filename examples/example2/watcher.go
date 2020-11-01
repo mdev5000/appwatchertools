@@ -27,11 +27,13 @@ func main() {
 
 	wd, err := os.Getwd()
 	ensureOk(err)
-	r.appWatcher.Dir = wd
+	exampleFilesDir := filepath.Join(wd, "testdata", "tmp", "example2_files")
+	ensureOk(os.MkdirAll(exampleFilesDir, 0776))
+	r.appWatcher.Dir = exampleFilesDir
 
 	// Only watch application files.
 	r.appWatcher.FileFilter = func(path string) (bool, error) {
-		return r.isApplicationPath(wd, path), nil
+		return true, nil
 	}
 
 	r.appWatcher.OnChangeFn = r.onChange
@@ -41,11 +43,12 @@ func main() {
 	r.appWatcher.CommandFn = func() *exec.Cmd {
 		// Usually you would run the compiled application here.
 		// return exec.Command("./app")
-		return exec.Command("echo", "running app")
+		return exec.Command(filepath.Join(wd, "testdata", "runforevere"))
 	}
 
 	// Run the watcher.
 	ctx := context.Background()
+	fmt.Println("Watching for changes...")
 	ensureOk(r.appWatcher.Run(ctx))
 }
 

@@ -15,10 +15,14 @@ type WatchFileFilter = func(path string) (bool, error)
 type OnChangeFn = func(path []string) error
 
 type WatchConfig struct {
-	Dir    string
-	Debounce time.Duration
-	Filter WatchFileFilter
-	OnChange OnChangeFn
+	Dir          string
+	Debounce     time.Duration
+	isRebuilding bool
+
+	// Returns true if file should be watched.
+	Filter       WatchFileFilter
+
+	OnChange     OnChangeFn
 }
 
 func NewWatchConfig() *WatchConfig {
@@ -67,32 +71,44 @@ func WatchDir(cfg *WatchConfig, ctx context.Context, events chan<- fsnotify.Even
 func keepWatching(ctx context.Context, watcher *fsnotify.Watcher, cfg *WatchConfig) {
 	go func() {
 		for {
-			err := filepath.Walk(cfg.Dir, func(path string, info os.FileInfo, err error) error {
-				if info == nil {
-					cfg.cancelFunc()
-					return errors.New("nil directory")
-				}
-				if info.IsDir() {
-					if strings.HasPrefix(filepath.Base(path), "_") {
-						return filepath.SkipDir
-					}
-					if len(path) > 1 && strings.HasPrefix(filepath.Base(path), ".") {
-						return filepath.SkipDir
-					}
-				}
-				shouldWatchFile, err := cfg.Filter(path)
-				if shouldWatchFile {
-					err = watcher.Add(path)
-				}
-				return err
-			})
+			select {
+				case <- ctx.Done():
+					return
 
-			if err != nil {
-				ctx.Done()
-				break
+				case <- time.After(time.Second):
+					// sweep for new files every 1 second
+					err := filepath.Walk(cfg.Dir, func(path string, info os.FileInfo, err error) error {
+						if info == nil {
+							cfg.cancelFunc()
+							return errors.New("nil directory")
+						}
+						if info.IsDir() {
+							if strings.HasPrefix(filepath.Base(path), "_") {
+								return filepath.SkipDir
+							}
+							if len(path) > 1 && strings.HasPrefix(filepath.Base(path), ".") {
+								return filepath.SkipDir
+							}
+						}
+						shouldWatchFile, err := cfg.Filter(path)
+						if shouldWatchFile {
+							err = watcher.Add(path)
+						}
+						return err
+					})
+
+					if err != nil {
+						// @todo maybe do something
+					}
+
+					//if err != nil {
+					//	ctx.Done()
+					//	break
+					//}
+					// sweep for new files every 1 second
+				//time.Sleep(1 * time.Second)
+
 			}
-			// sweep for new files every 1 second
-			time.Sleep(1 * time.Second)
 		}
 	}()
 }

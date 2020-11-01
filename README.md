@@ -1,5 +1,7 @@
 # appwatchertools
 
+@todo add run forever to buildscript
+
 Utility functions for setting up an application watcher.
 
 ## Get started

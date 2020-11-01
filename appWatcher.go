@@ -5,13 +5,14 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"time"
 )
 
 type DefaultLogger struct {
 }
 
 func (e DefaultLogger) Success(msg string, args ...interface{}) {
-	fmt.Printf(msg + "\n", args...)
+	fmt.Printf(msg+"\n", args...)
 }
 
 func (e DefaultLogger) Error(err error) {
@@ -29,6 +30,7 @@ type restartInfo struct {
 
 type AppWatcher struct {
 	Dir        string
+	Debounce   time.Duration
 	ExeLogger  ExeLogger
 	FileFilter WatchFileFilter
 	OnChangeFn OnChange
@@ -53,6 +55,7 @@ func (a *AppWatcher) Run(ctx context.Context) error {
 	w := NewWatcher()
 	w.Dir = a.Dir
 	w.Filter = a.FileFilter
+	w.Debounce = a.Debounce
 	w.OnChange = func(paths []string) error {
 		restart <- restartInfo{ChangedFiles: paths}
 		return nil

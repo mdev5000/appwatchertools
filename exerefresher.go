@@ -47,7 +47,7 @@ func (r *ExeRefresher) Run(ctx context.Context) {
 	for {
 		select {
 		case <- ctx.Done():
-			if cmd != nil {
+			if cmd != nil && cmd.Process != nil {
 				cmd.Process.Kill()
 				return
 			}
@@ -55,10 +55,12 @@ func (r *ExeRefresher) Run(ctx context.Context) {
 		case <-r.Restart:
 			if cmd != nil {
 				// kill the previous command
-				pid := cmd.Process.Pid
-				r.Logger.Success("Stopping: PID %d", pid)
-				if err := cmd.Process.Kill(); err != nil {
-					r.Logger.Error(err)
+				if cmd.Process != nil {
+					pid := cmd.Process.Pid
+					r.Logger.Success("Stopping: PID %d", pid)
+					if err := cmd.Process.Kill(); err != nil {
+						r.Logger.Error(err)
+					}
 				}
 			}
 			//if r.Debug {

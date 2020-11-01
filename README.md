@@ -99,3 +99,24 @@ You can then run the watcher with:
 ```bash
 go run watcher/watcher.go
 ```
+
+---
+
+## Development
+
+Initialize the development environment with.
+
+```
+make dev-init
+```
+
+You can test with usual `go test`.
+
+Finally you can also run **example2**.
+
+```bash
+go run examples/example2/watcher.go
+```
+
+After starting the watcher add files to **/testdata/tmp/example2_files**
+and change them and the watcher should update. 

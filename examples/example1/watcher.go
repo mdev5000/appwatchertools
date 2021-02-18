@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bitbucket.org/mdev5000/appwatchertools"
+	"github.com/mdev5000/appwatchertools"
 	"context"
 	"os"
 	"os/exec"

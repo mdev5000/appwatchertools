@@ -1,4 +1,4 @@
-module bitbucket.org/mdev5000/appwatchertools
+module github.com/mdev5000/appwatchertools
 
 go 1.14
 

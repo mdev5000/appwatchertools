@@ -7,7 +7,7 @@ Utility functions for setting up an application watcher.
 ## Get started
 
 ```bash
-go get bitbucket.org/mdev5000/appwatchertools
+go get github.com/mdev5000/appwatchertools
 ```
 
 ## Example
@@ -17,7 +17,7 @@ go get bitbucket.org/mdev5000/appwatchertools
 package main
 
 import (
-	"bitbucket.org/mdev5000/appwatchertools"
+	"github.com/mdev5000/appwatchertools"
 	"context"
 	"fmt"
 	"os"
